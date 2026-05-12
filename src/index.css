@@ -23,36 +23,39 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-    --radius: 0rem;
+    --radius: 0.25rem;
 
-    /* Pixel Game Colors */
-    --pixel-bg: #0a0a0f;
-    --pixel-bg2: #0f0f1a;
-    --pixel-green: #00ff41;
-    --pixel-green-dim: #00aa2a;
-    --pixel-yellow: #ffe600;
-    --pixel-red: #ff2244;
-    --pixel-blue: #00aaff;
-    --pixel-border: #00ff41;
-    --pixel-text: #e8ffe8;
-    --pixel-muted: #446644;
+    /* Fantasy palette */
+    --f-gold: #d4a843;
+    --f-gold-light: #f0c96a;
+    --f-gold-dim: #8a6820;
+    --f-cream: #f2e8d0;
+    --f-stone: #2a2318;
+    --f-stone2: #1a160f;
+    --f-panel: rgba(15, 10, 5, 0.82);
+    --f-panel-edge: rgba(212, 168, 67, 0.55);
+    --f-red: #c0392b;
+    --f-silver: #b8c4cc;
+    --f-blue: #4a7fa8;
+    --f-text: #f2e8d0;
+    --f-muted: #8a7a5a;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
     box-sizing: border-box;
   }
+
   body {
-    @apply bg-background text-foreground;
-    background-color: var(--pixel-bg);
-    color: var(--pixel-text);
-    font-family: "Press Start 2P", monospace;
+    background-color: #0f0d0a;
+    color: var(--f-cream);
+    font-family: "Cinzel", serif;
     overflow: hidden;
     height: 100dvh;
     width: 100dvw;
   }
+
   #root {
     height: 100dvh;
     width: 100dvw;
@@ -60,157 +63,59 @@
   }
 }
 
-/* Pixel border utility */
-.pixel-border {
-  border: 3px solid var(--pixel-green);
-  box-shadow:
-    0 0 0 3px var(--pixel-bg),
-    0 0 0 6px var(--pixel-green),
-    inset 0 0 0 3px var(--pixel-bg),
-    0 0 20px rgba(0, 255, 65, 0.3);
-  image-rendering: pixelated;
+/* ── Animations ── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-.pixel-border-dim {
-  border: 3px solid var(--pixel-green-dim);
-  box-shadow:
-    0 0 0 3px var(--pixel-bg),
-    0 0 0 6px var(--pixel-green-dim);
+@keyframes titleGlow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 20px rgba(212, 168, 67, 0.6),
+      0 2px 4px rgba(0, 0, 0, 0.9),
+      0 0 60px rgba(212, 168, 67, 0.2);
+  }
+  50% {
+    text-shadow:
+      0 0 35px rgba(212, 168, 67, 0.9),
+      0 2px 4px rgba(0, 0, 0, 0.9),
+      0 0 90px rgba(212, 168, 67, 0.35);
+  }
 }
-
-/* Scanlines effect */
-.scanlines::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.15) 2px,
-    rgba(0, 0, 0, 0.15) 4px
-  );
-  pointer-events: none;
-  z-index: 10;
+@keyframes torchFlicker {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(0.97);
+  }
+  75% {
+    opacity: 0.8;
+    transform: scale(1.03);
+  }
 }
-
-/* CRT glow effect */
-.crt-glow {
-  text-shadow:
-    0 0 7px var(--pixel-green),
-    0 0 14px var(--pixel-green),
-    0 0 40px rgba(0, 255, 65, 0.5);
+@keyframes cloudDrift {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(4%);
+  }
 }
-
-.crt-glow-yellow {
-  text-shadow:
-    0 0 7px var(--pixel-yellow),
-    0 0 14px var(--pixel-yellow);
-}
-
-/* Pixel button */
-.pixel-btn {
-  position: relative;
-  background: var(--pixel-bg2);
-  border: 3px solid var(--pixel-green);
-  color: var(--pixel-green);
-  font-family: "Press Start 2P", monospace;
-  font-size: 13px;
-  padding: 18px 24px;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.05s;
-  outline: none;
-  box-shadow:
-    4px 4px 0px var(--pixel-green-dim),
-    0 0 15px rgba(0, 255, 65, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  letter-spacing: 0.5px;
-  image-rendering: pixelated;
-}
-
-.pixel-btn:hover {
-  background: rgba(0, 255, 65, 0.12);
-  transform: translate(-2px, -2px);
-  box-shadow:
-    6px 6px 0px var(--pixel-green),
-    0 0 25px rgba(0, 255, 65, 0.35);
-  color: #fff;
-}
-
-.pixel-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px var(--pixel-green-dim);
-}
-
-.pixel-btn.selected {
-  background: rgba(0, 255, 65, 0.18);
-  color: #fff;
-}
-
-/* Pixel input */
-.pixel-input {
-  background: #060610;
-  border: 3px solid var(--pixel-green-dim);
-  color: var(--pixel-green);
-  font-family: "Press Start 2P", monospace;
-  font-size: 13px;
-  padding: 16px 18px;
-  width: 100%;
-  outline: none;
-  transition: all 0.1s;
-  caret-color: var(--pixel-green);
-}
-
-.pixel-input:focus {
-  border-color: var(--pixel-green);
-  box-shadow:
-    0 0 0 3px rgba(0, 255, 65, 0.2),
-    inset 0 0 20px rgba(0, 255, 65, 0.05);
-}
-
-.pixel-input::placeholder {
-  color: var(--pixel-muted);
-  font-size: 10px;
-}
-
-/* Slider custom */
-.pixel-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 14px;
-  background: #111;
-  border: 3px solid var(--pixel-green-dim);
-  outline: none;
-  cursor: pointer;
-}
-
-.pixel-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  background: var(--pixel-green);
-  cursor: pointer;
-  border: 3px solid var(--pixel-bg);
-  box-shadow: 0 0 8px var(--pixel-green);
-  image-rendering: pixelated;
-}
-
-.pixel-slider::-webkit-slider-runnable-track {
-  background: linear-gradient(
-    to right,
-    var(--pixel-green-dim) 0%,
-    var(--pixel-green-dim) var(--val, 70%),
-    #222 var(--val, 70%)
-  );
-  height: 8px;
-}
-
-/* Blinking cursor */
 @keyframes blink {
   0%,
   100% {
@@ -220,144 +125,214 @@
     opacity: 0;
   }
 }
-
-.blink {
-  animation: blink 1s step-end infinite;
-}
-
-/* Screen transitions */
-@keyframes screenIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes screenOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-}
-
-.screen-in {
-  animation: screenIn 0.25s ease-out forwards;
-}
-
-/* Pixel noise background */
-@keyframes noise {
-  0% {
-    background-position: 0 0;
-  }
-  10% {
-    background-position: -5% -10%;
-  }
-  20% {
-    background-position: -15% 5%;
-  }
-  30% {
-    background-position: 7% -25%;
-  }
-  40% {
-    background-position: 20% 25%;
-  }
-  50% {
-    background-position: -25% 10%;
-  }
-  60% {
-    background-position: 15% 5%;
-  }
-  70% {
-    background-position: 0% 15%;
-  }
-  80% {
-    background-position: 25% 35%;
-  }
-  90% {
-    background-position: -10% 10%;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
-
-/* Floating pixels decoration */
-@keyframes floatPixel {
+@keyframes floatRune {
   0%,
   100% {
+    opacity: 0.06;
     transform: translateY(0px);
-    opacity: 0.4;
   }
   50% {
-    transform: translateY(-12px);
-    opacity: 0.9;
+    opacity: 0.14;
+    transform: translateY(-10px);
   }
 }
 
-/* Progress bar animate */
-@keyframes fillBar {
-  from {
-    width: 0%;
-  }
-  to {
-    width: var(--fill, 70%);
-  }
+/* ── Screen transition ── */
+.screen-in {
+  animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.fill-bar {
-  animation: fillBar 0.5s ease-out forwards;
+/* ── Fantasy panel ── */
+.f-panel {
+  background: var(--f-panel);
+  border: 1px solid var(--f-panel-edge);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 8px 40px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(212, 168, 67, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
 }
 
-/* Game title animation */
-@keyframes titlePulse {
-  0%,
-  100% {
-    text-shadow:
-      0 0 7px var(--pixel-green),
-      0 0 14px var(--pixel-green),
-      0 0 40px rgba(0, 255, 65, 0.5);
-    letter-spacing: 2px;
-  }
-  50% {
-    text-shadow:
-      0 0 10px var(--pixel-green),
-      0 0 25px var(--pixel-green),
-      0 0 60px rgba(0, 255, 65, 0.8);
-    letter-spacing: 3px;
-  }
+/* ── Fantasy button ── */
+.f-btn {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(212, 168, 67, 0.12) 0%,
+    rgba(212, 168, 67, 0.04) 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  border: 1px solid rgba(212, 168, 67, 0.4);
+  border-top-color: rgba(212, 168, 67, 0.65);
+  color: var(--f-cream);
+  font-family: "Cinzel", serif;
+  font-size: clamp(10px, 2.6vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  padding: 16px 22px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.18s ease;
+  outline: none;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.title-pulse {
-  animation: titlePulse 3s ease-in-out infinite;
-}
-
-/* Star decorations */
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.2;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.3);
-  }
-}
-
-/* Pixel decorative corners */
-.pixel-corners::before,
-.pixel-corners::after {
-  content: "█";
+.f-btn::before {
+  content: "";
   position: absolute;
-  color: var(--pixel-green);
-  font-size: 8px;
-  opacity: 0.5;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, transparent, var(--f-gold), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.f-btn:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(212, 168, 67, 0.22) 0%,
+    rgba(212, 168, 67, 0.1) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  border-color: rgba(212, 168, 67, 0.8);
+  color: var(--f-gold-light);
+  box-shadow:
+    0 4px 20px rgba(212, 168, 67, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transform: translateX(4px);
+}
+.f-btn:hover::before {
+  opacity: 1;
+}
+.f-btn:active {
+  transform: translateX(1px) scale(0.99);
+}
+
+.f-btn.danger {
+  border-color: rgba(192, 57, 43, 0.4);
+  border-top-color: rgba(192, 57, 43, 0.65);
+  color: #e07060;
+}
+.f-btn.danger:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(192, 57, 43, 0.2) 0%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  border-color: rgba(192, 57, 43, 0.85);
+  color: #ff8878;
+  box-shadow: 0 4px 20px rgba(192, 57, 43, 0.25);
+}
+.f-btn.danger::before {
+  background: linear-gradient(180deg, transparent, var(--f-red), transparent);
+}
+
+/* ── Fantasy input ── */
+.f-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(212, 168, 67, 0.3);
+  border-bottom: 2px solid rgba(212, 168, 67, 0.5);
+  color: var(--f-cream);
+  font-family: "IM Fell English", serif;
+  font-size: 16px;
+  padding: 14px 18px;
+  outline: none;
+  transition: all 0.2s;
+  caret-color: var(--f-gold);
+}
+.f-input:focus {
+  border-color: rgba(212, 168, 67, 0.65);
+  box-shadow:
+    0 0 20px rgba(212, 168, 67, 0.15),
+    inset 0 0 10px rgba(212, 168, 67, 0.04);
+}
+.f-input::placeholder {
+  color: var(--f-muted);
+  font-style: italic;
+}
+
+/* ── Divider ── */
+.f-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--f-gold-dim);
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+.f-divider::before,
+.f-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--f-gold-dim),
+    transparent
+  );
+}
+
+/* ── Slider ── */
+.f-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--f-gold) 0%,
+    var(--f-gold) var(--val, 50%),
+    rgba(255, 255, 255, 0.1) var(--val, 50%)
+  );
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+.f-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    var(--f-gold-light),
+    var(--f-gold)
+  );
+  border: 2px solid #0f0d0a;
+  box-shadow: 0 0 8px rgba(212, 168, 67, 0.6);
+  cursor: pointer;
+}
+
+/* ── Gold gradient text ── */
+.gold-text {
+  background: linear-gradient(
+    180deg,
+    var(--f-gold-light) 0%,
+    var(--f-gold) 55%,
+    var(--f-gold-dim) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gold-glow {
+  animation: titleGlow 4s ease-in-out infinite;
+}
+.torch-flicker {
+  animation: torchFlicker 2s ease-in-out infinite;
+}
+.blink {
+  animation: blink 1.2s step-end infinite;
 }
