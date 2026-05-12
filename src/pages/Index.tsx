@@ -160,6 +160,20 @@ export default function Index() {
         background: "linear-gradient(to top, rgba(0,0,0,0.22) 0%, transparent 40%)",
       }} />
 
+      {/* Версия */}
+      <div style={{
+        position: "absolute", bottom: "14px", right: "16px",
+        fontFamily: "'Cinzel', serif",
+        fontSize: "10px",
+        letterSpacing: "0.12em",
+        color: "rgba(212,168,67,0.45)",
+        textShadow: "0 1px 6px rgba(0,0,0,0.8)",
+        pointerEvents: "none",
+        zIndex: 20,
+      }}>
+        beta 1
+      </div>
+
       {/* ════ MAIN MENU ════ */}
       {screen === "menu" && (
         <div className="screen-in" style={{
