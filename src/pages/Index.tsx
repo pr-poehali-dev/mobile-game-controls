@@ -301,7 +301,7 @@ export default function Index() {
                   background: "none", border: "none", outline: "none",
                   cursor: "pointer", padding: "12px 0",
                   textAlign: "left", width: "100%",
-                  display: "flex", flexDirection: "column", gap: "6px",
+                  display: "flex", flexDirection: "column", gap: "4px",
                   borderBottom: "1px solid rgba(212,168,67,0.12)",
                   transition: "opacity 0.15s",
                 }}
@@ -321,15 +321,14 @@ export default function Index() {
                   </span>
                   <span style={{
                     fontSize: "10px",
-                    color: "rgba(212,168,67,0.6)",
+                    color: "rgba(212,168,67,0.7)",
                     fontFamily: "'Cinzel', serif",
                     letterSpacing: "0.06em",
                     textShadow: "0 1px 6px rgba(0,0,0,0.9)",
                   }}>
-                    LVL {save.level}
+                    Этаж {Math.min(Math.max(save.level, 1), 15)}
                   </span>
                 </div>
-                <ProgressBar value={Math.min(save.level * 8, 100)} />
                 <div style={{
                   fontSize: "10px",
                   color: "rgba(200,180,130,0.45)",
