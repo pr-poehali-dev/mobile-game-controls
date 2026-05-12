@@ -102,6 +102,7 @@ export default function Index() {
   const [gameName, setGameName] = useState("");
   const [saves, setSaves]       = useState<SavedGame[]>(INITIAL_SAVES);
   const [volumes, setVolumes]   = useState({ effects: 70, music: 50, voices: 80 });
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -295,49 +296,123 @@ export default function Index() {
                 textShadow: "0 1px 6px rgba(0,0,0,0.8)",
               }}>Нет сохранений</div>
             ) : saves.map((save) => (
-              <button
+              <div
                 key={save.id}
                 style={{
-                  background: "none", border: "none", outline: "none",
-                  cursor: "pointer", padding: "12px 0",
-                  textAlign: "left", width: "100%",
-                  display: "flex", flexDirection: "column", gap: "4px",
                   borderBottom: "1px solid rgba(212,168,67,0.12)",
-                  transition: "opacity 0.15s",
+                  padding: "12px 0",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
-                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <span style={{
-                    fontFamily: "'Cinzel', serif",
-                    fontSize: "clamp(13px, 3.4vw, 16px)",
-                    fontWeight: 600,
-                    color: "rgba(240,220,170,0.92)",
-                    letterSpacing: "0.08em",
-                    textShadow: "0 1px 8px rgba(0,0,0,0.9)",
-                  }}>
-                    {save.name}
-                  </span>
-                  <span style={{
-                    fontSize: "10px",
-                    color: "rgba(212,168,67,0.7)",
-                    fontFamily: "'Cinzel', serif",
-                    letterSpacing: "0.06em",
-                    textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-                  }}>
-                    Этаж {Math.min(Math.max(save.level, 1), 15)}
-                  </span>
-                </div>
-                <div style={{
-                  fontSize: "10px",
-                  color: "rgba(200,180,130,0.45)",
-                  fontFamily: "'IM Fell English', serif",
-                  textShadow: "0 1px 4px rgba(0,0,0,0.8)",
-                }}>
-                  {save.date}
-                </div>
-              </button>
+                {deleteId === save.id ? (
+                  /* Подтверждение удаления */
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <span style={{
+                      fontFamily: "'IM Fell English', serif",
+                      fontStyle: "italic",
+                      fontSize: "13px",
+                      color: "rgba(240,200,140,0.75)",
+                      textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+                    }}>
+                      Удалить «{save.name}»?
+                    </span>
+                    <div style={{ display: "flex", gap: "16px" }}>
+                      <button
+                        onClick={() => {
+                          setSaves(prev => prev.filter(s => s.id !== save.id));
+                          setDeleteId(null);
+                        }}
+                        style={{
+                          background: "none", border: "none", outline: "none",
+                          cursor: "pointer",
+                          fontFamily: "'Cinzel', serif",
+                          fontSize: "11px", fontWeight: 600,
+                          letterSpacing: "0.1em",
+                          color: "rgba(220,90,75,0.9)",
+                          textShadow: "0 0 12px rgba(220,80,60,0.5), 0 1px 6px rgba(0,0,0,0.9)",
+                          padding: "4px 0",
+                          transition: "color 0.15s",
+                        }}
+                      >
+                        Удалить
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(null)}
+                        style={{
+                          background: "none", border: "none", outline: "none",
+                          cursor: "pointer",
+                          fontFamily: "'Cinzel', serif",
+                          fontSize: "11px", fontWeight: 600,
+                          letterSpacing: "0.1em",
+                          color: "rgba(240,220,170,0.55)",
+                          textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+                          padding: "4px 0",
+                        }}
+                      >
+                        Отмена
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Строка сохранения */
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <span style={{
+                          fontFamily: "'Cinzel', serif",
+                          fontSize: "clamp(13px, 3.4vw, 16px)",
+                          fontWeight: 600,
+                          color: "rgba(240,220,170,0.92)",
+                          letterSpacing: "0.08em",
+                          textShadow: "0 1px 8px rgba(0,0,0,0.9)",
+                        }}>
+                          {save.name}
+                        </span>
+                        <span style={{
+                          fontSize: "10px",
+                          color: "rgba(212,168,67,0.7)",
+                          fontFamily: "'Cinzel', serif",
+                          letterSpacing: "0.06em",
+                          textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+                        }}>
+                          Этаж {Math.min(Math.max(save.level, 1), 15)}
+                        </span>
+                      </div>
+                      <div style={{
+                        fontSize: "10px",
+                        color: "rgba(200,180,130,0.45)",
+                        fontFamily: "'IM Fell English', serif",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+                      }}>
+                        {save.date}
+                      </div>
+                    </div>
+                    {/* Кнопка удаления */}
+                    <button
+                      onClick={() => setDeleteId(save.id)}
+                      style={{
+                        background: "none", border: "none", outline: "none",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        color: "rgba(220,90,75,0.4)",
+                        lineHeight: 1,
+                        padding: "4px 6px",
+                        transition: "color 0.15s, transform 0.12s",
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = "rgba(255,100,80,0.9)";
+                        e.currentTarget.style.transform = "scale(1.2)";
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = "rgba(220,90,75,0.4)";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
