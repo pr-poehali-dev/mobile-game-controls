@@ -9,7 +9,7 @@ interface SavedGame {
   level: number;
 }
 
-const BG_IMAGE = "https://cdn.poehali.dev/projects/7f9fee17-8fa0-4679-83bb-c0f3e5f47700/files/cad7c503-ee90-423a-b91f-2a9dcfa8025b.jpg";
+const BG_IMAGE = "https://cdn.poehali.dev/projects/7f9fee17-8fa0-4679-83bb-c0f3e5f47700/bucket/1a4a5e7f-7b0e-410b-a87b-6d628b36e65b.png";
 
 const INITIAL_SAVES: SavedGame[] = [
   { id: 1, name: "Первое Приключение", date: "10.05.2026", level: 7 },
@@ -133,32 +133,90 @@ export default function Index() {
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
 
-      {/* Фон — яркий пейзаж */}
+      {/* Фон */}
       <div style={{
         position: "absolute", inset: 0,
         backgroundImage: `url(${BG_IMAGE})`,
         backgroundSize: "cover",
         backgroundPosition: "center top",
         backgroundRepeat: "no-repeat",
-        filter: "saturate(1.25) brightness(1.08)",
       }} />
 
-      {/* Только верхушка — тёмная (башня уходит в тучи) */}
+      {/* Анимированные тучи — SVG поверх фона */}
+      <svg
+        viewBox="0 0 800 300"
+        preserveAspectRatio="xMidYMin slice"
+        style={{
+          position: "absolute", top: 0, left: 0,
+          width: "100%", height: "55%",
+          pointerEvents: "none", zIndex: 2,
+          mixBlendMode: "multiply",
+        }}
+      >
+        <defs>
+          <filter id="blur1"><feGaussianBlur stdDeviation="4"/></filter>
+          <filter id="blur2"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+
+        {/* Туча левая — медленно дрейфует влево-вправо */}
+        <g filter="url(#blur1)" opacity="0.82">
+          <animateTransform attributeName="transform" type="translate"
+            values="-18,0; 18,4; -18,0" dur="18s" repeatCount="indefinite" calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
+          <ellipse cx="155" cy="72" rx="110" ry="44" fill="#2a2a2e"/>
+          <ellipse cx="105" cy="85" rx="75"  ry="36" fill="#232328"/>
+          <ellipse cx="200" cy="82" rx="80"  ry="32" fill="#2c2c32"/>
+          <ellipse cx="150" cy="95" rx="95"  ry="28" fill="#1e1e22"/>
+        </g>
+
+        {/* Туча правая — дрейфует в противофазе */}
+        <g filter="url(#blur1)" opacity="0.78">
+          <animateTransform attributeName="transform" type="translate"
+            values="16,0; -16,6; 16,0" dur="22s" repeatCount="indefinite" calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
+          <ellipse cx="650" cy="68" rx="120" ry="42" fill="#252528"/>
+          <ellipse cx="700" cy="80" rx="80"  ry="34" fill="#2a2a2e"/>
+          <ellipse cx="600" cy="78" rx="85"  ry="30" fill="#202024"/>
+          <ellipse cx="655" cy="92" rx="100" ry="26" fill="#1c1c20"/>
+        </g>
+
+        {/* Центральная туча над башней — пульсирует и чуть расширяется */}
+        <g filter="url(#blur2)" opacity="0.9">
+          <animateTransform attributeName="transform" type="scale"
+            values="1,1; 1.06,1.04; 1,1" dur="12s" repeatCount="indefinite" calcMode="spline"
+            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+            additive="sum" origin="400 60"/>
+          <animateTransform attributeName="transform" type="translate"
+            values="-8,0; 8,3; -8,0" dur="16s" repeatCount="indefinite" calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"
+            additive="sum"/>
+          <ellipse cx="400" cy="54" rx="130" ry="46" fill="#1a1a1f"/>
+          <ellipse cx="370" cy="66" rx="95"  ry="38" fill="#141418"/>
+          <ellipse cx="430" cy="64" rx="100" ry="36" fill="#18181c"/>
+          <ellipse cx="400" cy="80" rx="115" ry="30" fill="#111114"/>
+          <ellipse cx="400" cy="92" rx="80"  ry="22" fill="#0e0e11"/>
+        </g>
+
+        {/* Дополнительные мелкие клочья */}
+        <g opacity="0.55" filter="url(#blur1)">
+          <animateTransform attributeName="transform" type="translate"
+            values="0,0; 28,8; 0,0" dur="26s" repeatCount="indefinite" calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
+          <ellipse cx="300" cy="100" rx="60" ry="20" fill="#222226"/>
+          <ellipse cx="510" cy="96"  rx="55" ry="18" fill="#1e1e22"/>
+        </g>
+      </svg>
+
+      {/* Лёгкое затемнение по краям */}
       <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(to bottom, rgba(4,2,12,0.72) 0%, rgba(8,4,20,0.35) 18%, transparent 35%)",
+        position: "absolute", inset: 0, zIndex: 3,
+        background: "radial-gradient(ellipse 80% 80% at center, transparent 55%, rgba(0,0,0,0.3) 100%)",
       }} />
 
-      {/* Лёгкое затемнение по краям для фокуса */}
+      {/* Подложка снизу под меню */}
       <div style={{
-        position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse 80% 80% at center, transparent 55%, rgba(0,0,0,0.38) 100%)",
-      }} />
-
-      {/* Очень лёгкая подложка снизу под меню */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(to top, rgba(0,0,0,0.22) 0%, transparent 40%)",
+        position: "absolute", inset: 0, zIndex: 3,
+        background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, transparent 40%)",
       }} />
 
       {/* Версия */}
@@ -170,7 +228,7 @@ export default function Index() {
         color: "rgba(212,168,67,0.45)",
         textShadow: "0 1px 6px rgba(0,0,0,0.8)",
         pointerEvents: "none",
-        zIndex: 20,
+        zIndex: 30,
       }}>
         beta 1
       </div>
