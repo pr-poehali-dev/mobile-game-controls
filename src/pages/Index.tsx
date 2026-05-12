@@ -1,101 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-
-type Screen = "menu" | "new-game" | "continue" | "settings";
-
-interface SavedGame {
-  id: number;
-  name: string;
-  date: string;
-  level: number;
-}
-
-const BG_IMAGE = "https://cdn.poehali.dev/projects/7f9fee17-8fa0-4679-83bb-c0f3e5f47700/bucket/1a4a5e7f-7b0e-410b-a87b-6d628b36e65b.png";
-
-const INITIAL_SAVES: SavedGame[] = [
-  { id: 1, name: "Первое Приключение", date: "10.05.2026", level: 7 },
-  { id: 2, name: "Тёмное Подземелье",  date: "09.05.2026", level: 3 },
-  { id: 3, name: "Битва с Драконом",   date: "07.05.2026", level: 12 },
-];
-
-const MENU_ITEMS = [
-  { id: "new-game" as Screen, label: "Новая Игра", danger: false },
-  { id: "continue" as Screen, label: "Продолжить", danger: false },
-  { id: "settings" as Screen, label: "Настройки",  danger: false },
-  { id: "exit"     as Screen, label: "Покинуть",   danger: true  },
-];
-
-const ProgressBar = ({ value }: { value: number }) => (
-  <div style={{
-    width: "100%", height: "2px",
-    background: "rgba(255,255,255,0.12)",
-    overflow: "hidden",
-  }}>
-    <div style={{
-      height: "100%", width: `${value}%`,
-      background: "linear-gradient(90deg, var(--f-gold-dim), var(--f-gold))",
-      transition: "width 0.4s ease-out",
-    }} />
-  </div>
-);
-
-/* Чистая кнопка-текст без рамки */
-const GhostBtn = ({
-  children,
-  onClick,
-  danger,
-  center,
-  disabled,
-  small,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  danger?: boolean;
-  center?: boolean;
-  disabled?: boolean;
-  small?: boolean;
-}) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    style={{
-      background: "none",
-      border: "none",
-      outline: "none",
-      cursor: disabled ? "not-allowed" : "pointer",
-      fontFamily: "'Cinzel', serif",
-      fontSize: small ? "clamp(11px, 2.8vw, 13px)" : "clamp(14px, 3.6vw, 18px)",
-      fontWeight: 600,
-      letterSpacing: "0.18em",
-      color: danger
-        ? "rgba(220,90,75,0.85)"
-        : "rgba(240,220,170,0.88)",
-      padding: "14px 0",
-      width: "100%",
-      textAlign: center ? "center" : "left",
-      opacity: disabled ? 0.35 : 1,
-      transition: "color 0.15s, transform 0.12s, text-shadow 0.15s",
-      textShadow: "0 1px 8px rgba(0,0,0,0.8)",
-      display: "block",
-    }}
-    onMouseEnter={e => {
-      if (disabled) return;
-      const el = e.currentTarget;
-      el.style.color = danger ? "rgba(255,120,100,1)" : "rgba(255,230,140,1)";
-      el.style.transform = "translateX(6px)";
-      el.style.textShadow = danger
-        ? "0 0 18px rgba(220,80,60,0.6), 0 1px 8px rgba(0,0,0,0.9)"
-        : "0 0 20px rgba(212,168,67,0.7), 0 1px 8px rgba(0,0,0,0.9)";
-    }}
-    onMouseLeave={e => {
-      const el = e.currentTarget;
-      el.style.color = danger ? "rgba(220,90,75,0.85)" : "rgba(240,220,170,0.88)";
-      el.style.transform = "translateX(0)";
-      el.style.textShadow = "0 1px 8px rgba(0,0,0,0.8)";
-    }}
-  >
-    {children}
-  </button>
-);
+import { useState } from "react";
+import { Screen, SavedGame, INITIAL_SAVES } from "./game/types";
+import { Background } from "./game/Background";
+import { MainMenu, NewGame, ContinueGame, Settings } from "./game/Screens";
 
 export default function Index() {
   const [screen, setScreen]     = useState<Screen>("menu");
@@ -103,11 +9,6 @@ export default function Index() {
   const [saves, setSaves]       = useState<SavedGame[]>(INITIAL_SAVES);
   const [volumes, setVolumes]   = useState({ effects: 70, music: 50, voices: 80 });
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (screen === "new-game") setTimeout(() => inputRef.current?.focus(), 120);
-  }, [screen]);
 
   const goTo = (s: Screen) => {
     if (s === "exit") { window.close(); return; }
@@ -132,414 +33,41 @@ export default function Index() {
       position: "relative", overflow: "hidden",
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
+      <Background />
 
-      {/* Фон */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: `url(${BG_IMAGE})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center top",
-        backgroundRepeat: "no-repeat",
-      }} />
-
-      {/* Анимированные тучи — SVG поверх фона */}
-      <svg
-        viewBox="0 0 800 300"
-        preserveAspectRatio="xMidYMin slice"
-        style={{
-          position: "absolute", top: 0, left: 0,
-          width: "100%", height: "55%",
-          pointerEvents: "none", zIndex: 2,
-          mixBlendMode: "multiply",
-        }}
-      >
-        <defs>
-          <filter id="blur1"><feGaussianBlur stdDeviation="4"/></filter>
-          <filter id="blur2"><feGaussianBlur stdDeviation="6"/></filter>
-        </defs>
-
-        {/* Туча левая — медленно дрейфует влево-вправо */}
-        <g filter="url(#blur1)" opacity="0.82">
-          <animateTransform attributeName="transform" type="translate"
-            values="-18,0; 18,4; -18,0" dur="18s" repeatCount="indefinite" calcMode="spline"
-            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
-          <ellipse cx="155" cy="72" rx="110" ry="44" fill="#2a2a2e"/>
-          <ellipse cx="105" cy="85" rx="75"  ry="36" fill="#232328"/>
-          <ellipse cx="200" cy="82" rx="80"  ry="32" fill="#2c2c32"/>
-          <ellipse cx="150" cy="95" rx="95"  ry="28" fill="#1e1e22"/>
-        </g>
-
-        {/* Туча правая — дрейфует в противофазе */}
-        <g filter="url(#blur1)" opacity="0.78">
-          <animateTransform attributeName="transform" type="translate"
-            values="16,0; -16,6; 16,0" dur="22s" repeatCount="indefinite" calcMode="spline"
-            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
-          <ellipse cx="650" cy="68" rx="120" ry="42" fill="#252528"/>
-          <ellipse cx="700" cy="80" rx="80"  ry="34" fill="#2a2a2e"/>
-          <ellipse cx="600" cy="78" rx="85"  ry="30" fill="#202024"/>
-          <ellipse cx="655" cy="92" rx="100" ry="26" fill="#1c1c20"/>
-        </g>
-
-        {/* Центральная туча над башней — пульсирует и чуть расширяется */}
-        <g filter="url(#blur2)" opacity="0.9">
-          <animateTransform attributeName="transform" type="scale"
-            values="1,1; 1.06,1.04; 1,1" dur="12s" repeatCount="indefinite" calcMode="spline"
-            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
-            additive="sum" origin="400 60"/>
-          <animateTransform attributeName="transform" type="translate"
-            values="-8,0; 8,3; -8,0" dur="16s" repeatCount="indefinite" calcMode="spline"
-            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"
-            additive="sum"/>
-          <ellipse cx="400" cy="54" rx="130" ry="46" fill="#1a1a1f"/>
-          <ellipse cx="370" cy="66" rx="95"  ry="38" fill="#141418"/>
-          <ellipse cx="430" cy="64" rx="100" ry="36" fill="#18181c"/>
-          <ellipse cx="400" cy="80" rx="115" ry="30" fill="#111114"/>
-          <ellipse cx="400" cy="92" rx="80"  ry="22" fill="#0e0e11"/>
-        </g>
-
-        {/* Дополнительные мелкие клочья */}
-        <g opacity="0.55" filter="url(#blur1)">
-          <animateTransform attributeName="transform" type="translate"
-            values="0,0; 28,8; 0,0" dur="26s" repeatCount="indefinite" calcMode="spline"
-            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"/>
-          <ellipse cx="300" cy="100" rx="60" ry="20" fill="#222226"/>
-          <ellipse cx="510" cy="96"  rx="55" ry="18" fill="#1e1e22"/>
-        </g>
-      </svg>
-
-      {/* Лёгкое затемнение по краям */}
-      <div style={{
-        position: "absolute", inset: 0, zIndex: 3,
-        background: "radial-gradient(ellipse 80% 80% at center, transparent 55%, rgba(0,0,0,0.3) 100%)",
-      }} />
-
-      {/* Подложка снизу под меню */}
-      <div style={{
-        position: "absolute", inset: 0, zIndex: 3,
-        background: "linear-gradient(to top, rgba(0,0,0,0.18) 0%, transparent 40%)",
-      }} />
-
-      {/* Версия */}
-      <div style={{
-        position: "absolute", bottom: "14px", right: "16px",
-        fontFamily: "'Cinzel', serif",
-        fontSize: "10px",
-        letterSpacing: "0.12em",
-        color: "rgba(212,168,67,0.45)",
-        textShadow: "0 1px 6px rgba(0,0,0,0.8)",
-        pointerEvents: "none",
-        zIndex: 30,
-      }}>
-        beta 1
-      </div>
-
-      {/* ════ MAIN MENU ════ */}
       {screen === "menu" && (
-        <div className="screen-in" style={{
-          width: "min(340px, 88vw)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center",
-          position: "relative", zIndex: 10,
-        }}>
-          {/* Заголовок KINGS */}
-          <h1 className="gold-glow" style={{
-            fontFamily: "'Cinzel Decorative', serif",
-            fontSize: "clamp(42px, 12vw, 68px)",
-            fontWeight: 900,
-            color: "var(--f-gold)",
-            margin: "0 0 6px",
-            lineHeight: 1,
-            letterSpacing: "0.12em",
-            textShadow: "0 0 30px rgba(212,168,67,0.7), 0 4px 16px rgba(0,0,0,0.9)",
-          }}>
-            KINGS
-          </h1>
-
-          {/* Разделитель */}
-          <div style={{
-            width: "100%", height: "1px",
-            background: "linear-gradient(90deg, transparent, rgba(212,168,67,0.5), transparent)",
-            margin: "18px 0 8px",
-          }} />
-
-          {/* Кнопки меню */}
-          <div style={{
-            display: "flex", flexDirection: "column",
-            width: "100%", alignItems: "center",
-          }}>
-            {MENU_ITEMS.map((item) => (
-              <GhostBtn
-                key={item.id}
-                danger={item.danger}
-                center
-                onClick={() => goTo(item.id)}
-              >
-                {item.label}
-              </GhostBtn>
-            ))}
-          </div>
-        </div>
+        <MainMenu onNavigate={goTo} />
       )}
 
-      {/* ════ NEW GAME ════ */}
       {screen === "new-game" && (
-        <div className="screen-in" style={{
-          width: "min(340px, 88vw)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: "4px",
-          position: "relative", zIndex: 10,
-        }}>
-          <h2 className="gold-glow" style={{
-            fontFamily: "'Cinzel Decorative', serif",
-            fontSize: "clamp(22px, 6vw, 34px)",
-            fontWeight: 700,
-            color: "var(--f-gold)", margin: "0 0 20px",
-            letterSpacing: "0.1em",
-            textShadow: "0 0 24px rgba(212,168,67,0.6), 0 3px 12px rgba(0,0,0,0.9)",
-          }}>
-            KINGS
-          </h2>
-
-          <input
-            ref={inputRef}
-            className="f-input"
-            type="text"
-            maxLength={24}
-            value={gameName}
-            onChange={e => setGameName(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && startNewGame()}
-            placeholder="Название партии..."
-          />
-
-          <GhostBtn center onClick={startNewGame} disabled={!gameName.trim()}>
-            Начать Поход
-          </GhostBtn>
-
-          <GhostBtn center small onClick={() => setScreen("menu")}>
-            ← Назад
-          </GhostBtn>
-        </div>
+        <NewGame
+          gameName={gameName}
+          onChangeName={setGameName}
+          onStart={startNewGame}
+          onBack={() => setScreen("menu")}
+        />
       )}
 
-      {/* ════ CONTINUE ════ */}
       {screen === "continue" && (
-        <div className="screen-in" style={{
-          width: "min(340px, 88vw)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: "2px",
-          position: "relative", zIndex: 10,
-          maxHeight: "88dvh",
-        }}>
-          <h2 className="gold-glow" style={{
-            fontFamily: "'Cinzel Decorative', serif",
-            fontSize: "clamp(22px, 6vw, 34px)",
-            fontWeight: 700,
-            color: "var(--f-gold)", margin: "0 0 16px",
-            letterSpacing: "0.1em",
-            textShadow: "0 0 24px rgba(212,168,67,0.6), 0 3px 12px rgba(0,0,0,0.9)",
-          }}>
-            KINGS
-          </h2>
-
-          <div style={{
-            width: "100%", overflowY: "auto", maxHeight: "56dvh",
-            display: "flex", flexDirection: "column",
-          }}>
-            {saves.length === 0 ? (
-              <div style={{
-                textAlign: "center", padding: "24px 0",
-                color: "rgba(240,220,170,0.45)",
-                fontFamily: "'IM Fell English', serif",
-                fontStyle: "italic", fontSize: "14px",
-                textShadow: "0 1px 6px rgba(0,0,0,0.8)",
-              }}>Нет сохранений</div>
-            ) : saves.map((save) => (
-              <div
-                key={save.id}
-                style={{
-                  borderBottom: "1px solid rgba(212,168,67,0.12)",
-                  padding: "12px 0",
-                }}
-              >
-                {deleteId === save.id ? (
-                  /* Подтверждение удаления */
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <span style={{
-                      fontFamily: "'IM Fell English', serif",
-                      fontStyle: "italic",
-                      fontSize: "13px",
-                      color: "rgba(240,200,140,0.75)",
-                      textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-                    }}>
-                      Удалить «{save.name}»?
-                    </span>
-                    <div style={{ display: "flex", gap: "16px" }}>
-                      <button
-                        onClick={() => {
-                          setSaves(prev => prev.filter(s => s.id !== save.id));
-                          setDeleteId(null);
-                        }}
-                        style={{
-                          background: "none", border: "none", outline: "none",
-                          cursor: "pointer",
-                          fontFamily: "'Cinzel', serif",
-                          fontSize: "11px", fontWeight: 600,
-                          letterSpacing: "0.1em",
-                          color: "rgba(220,90,75,0.9)",
-                          textShadow: "0 0 12px rgba(220,80,60,0.5), 0 1px 6px rgba(0,0,0,0.9)",
-                          padding: "4px 0",
-                          transition: "color 0.15s",
-                        }}
-                      >
-                        Удалить
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(null)}
-                        style={{
-                          background: "none", border: "none", outline: "none",
-                          cursor: "pointer",
-                          fontFamily: "'Cinzel', serif",
-                          fontSize: "11px", fontWeight: 600,
-                          letterSpacing: "0.1em",
-                          color: "rgba(240,220,170,0.55)",
-                          textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-                          padding: "4px 0",
-                        }}
-                      >
-                        Отмена
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* Строка сохранения */
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                        <span style={{
-                          fontFamily: "'Cinzel', serif",
-                          fontSize: "clamp(13px, 3.4vw, 16px)",
-                          fontWeight: 600,
-                          color: "rgba(240,220,170,0.92)",
-                          letterSpacing: "0.08em",
-                          textShadow: "0 1px 8px rgba(0,0,0,0.9)",
-                        }}>
-                          {save.name}
-                        </span>
-                        <span style={{
-                          fontSize: "10px",
-                          color: "rgba(212,168,67,0.7)",
-                          fontFamily: "'Cinzel', serif",
-                          letterSpacing: "0.06em",
-                          textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-                        }}>
-                          Этаж {Math.min(Math.max(save.level, 1), 15)}
-                        </span>
-                      </div>
-                      <div style={{
-                        fontSize: "10px",
-                        color: "rgba(200,180,130,0.45)",
-                        fontFamily: "'IM Fell English', serif",
-                        textShadow: "0 1px 4px rgba(0,0,0,0.8)",
-                      }}>
-                        {save.date}
-                      </div>
-                    </div>
-                    {/* Кнопка удаления */}
-                    <button
-                      onClick={() => setDeleteId(save.id)}
-                      style={{
-                        background: "none", border: "none", outline: "none",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                        color: "rgba(220,90,75,0.4)",
-                        lineHeight: 1,
-                        padding: "4px 6px",
-                        transition: "color 0.15s, transform 0.12s",
-                        flexShrink: 0,
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color = "rgba(255,100,80,0.9)";
-                        e.currentTarget.style.transform = "scale(1.2)";
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color = "rgba(220,90,75,0.4)";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <GhostBtn center small onClick={() => setScreen("menu")}>
-            ← Назад
-          </GhostBtn>
-        </div>
+        <ContinueGame
+          saves={saves}
+          deleteId={deleteId}
+          onDelete={id => setDeleteId(id)}
+          onCancelDelete={() => setDeleteId(null)}
+          onConfirmDelete={id => {
+            setSaves(prev => prev.filter(s => s.id !== id));
+            setDeleteId(null);
+          }}
+          onBack={() => setScreen("menu")}
+        />
       )}
 
-      {/* ════ SETTINGS ════ */}
       {screen === "settings" && (
-        <div className="screen-in" style={{
-          width: "min(340px, 88vw)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", gap: "6px",
-          position: "relative", zIndex: 10,
-        }}>
-          <h2 className="gold-glow" style={{
-            fontFamily: "'Cinzel Decorative', serif",
-            fontSize: "clamp(22px, 6vw, 34px)",
-            fontWeight: 700,
-            color: "var(--f-gold)", margin: "0 0 20px",
-            letterSpacing: "0.1em",
-            textShadow: "0 0 24px rgba(212,168,67,0.6), 0 3px 12px rgba(0,0,0,0.9)",
-          }}>
-            KINGS
-          </h2>
-
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "22px" }}>
-            {([
-              { key: "effects" as const, label: "Эффекты",  color: "rgba(240,200,100,0.9)" },
-              { key: "music"   as const, label: "Музыка",   color: "rgba(110,180,220,0.9)" },
-              { key: "voices"  as const, label: "Голоса",   color: "rgba(140,220,140,0.9)" },
-            ] as const).map(({ key, label, color }) => (
-              <div key={key} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{
-                    fontFamily: "'Cinzel', serif",
-                    fontSize: "clamp(10px, 2.6vw, 13px)",
-                    fontWeight: 600,
-                    color, letterSpacing: "0.12em",
-                    textShadow: "0 1px 8px rgba(0,0,0,0.9)",
-                  }}>
-                    {label}
-                  </span>
-                  <span style={{
-                    fontFamily: "'Cinzel', serif",
-                    fontSize: "11px", color,
-                    textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-                  }}>
-                    {volumes[key]}%
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={0} max={100}
-                  value={volumes[key]}
-                  onChange={e => setVolumes(v => ({ ...v, [key]: Number(e.target.value) }))}
-                  className="f-slider"
-                  style={{ "--val": `${volumes[key]}%` } as React.CSSProperties}
-                />
-              </div>
-            ))}
-          </div>
-
-          <GhostBtn center small onClick={() => setScreen("menu")}>
-            ← Назад
-          </GhostBtn>
-        </div>
+        <Settings
+          volumes={volumes}
+          onChangeVolume={(key, value) => setVolumes(v => ({ ...v, [key]: value }))}
+          onBack={() => setScreen("menu")}
+        />
       )}
     </div>
   );
