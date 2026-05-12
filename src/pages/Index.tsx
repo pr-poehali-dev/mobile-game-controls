@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Screen, SavedGame, INITIAL_SAVES } from "./game/types";
 import { Background } from "./game/Background";
 import { MainMenu, NewGame, ContinueGame, Settings } from "./game/Screens";
+import { GameField } from "./game/GameField";
 
 export default function Index() {
-  const [screen, setScreen]     = useState<Screen>("menu");
-  const [gameName, setGameName] = useState("");
-  const [saves, setSaves]       = useState<SavedGame[]>(INITIAL_SAVES);
-  const [volumes, setVolumes]   = useState({ effects: 70, music: 50, voices: 80 });
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [screen, setScreen]         = useState<Screen>("menu");
+  const [gameName, setGameName]     = useState("");
+  const [saves, setSaves]           = useState<SavedGame[]>(INITIAL_SAVES);
+  const [volumes, setVolumes]       = useState({ effects: 70, music: 50, voices: 80 });
+  const [deleteId, setDeleteId]     = useState<number | null>(null);
+  const [activeSave, setActiveSave] = useState<SavedGame | null>(null);
 
   const goTo = (s: Screen) => {
     if (s === "exit") { window.close(); return; }
@@ -17,14 +19,16 @@ export default function Index() {
 
   const startNewGame = () => {
     if (!gameName.trim()) return;
-    setSaves(prev => [{
+    const newSave: SavedGame = {
       id: Date.now(),
       name: gameName.trim(),
       date: new Date().toLocaleDateString("ru-RU"),
       level: 1,
-    }, ...prev]);
+    };
+    setSaves(prev => [newSave, ...prev]);
     setGameName("");
-    setScreen("menu");
+    setActiveSave(newSave);
+    setScreen("game");
   };
 
   return (
@@ -66,6 +70,13 @@ export default function Index() {
         <Settings
           volumes={volumes}
           onChangeVolume={(key, value) => setVolumes(v => ({ ...v, [key]: value }))}
+          onBack={() => setScreen("menu")}
+        />
+      )}
+
+      {screen === "game" && activeSave && (
+        <GameField
+          save={activeSave}
           onBack={() => setScreen("menu")}
         />
       )}

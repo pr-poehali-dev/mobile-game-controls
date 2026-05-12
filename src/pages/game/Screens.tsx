@@ -89,7 +89,7 @@ export const NewGame = ({
         ref={inputRef}
         className="f-input"
         type="text"
-        maxLength={24}
+        maxLength={16}
         value={gameName}
         onChange={e => onChangeName(e.target.value)}
         onKeyDown={e => e.key === "Enter" && onStart()}
@@ -194,8 +194,8 @@ export const ContinueGame = ({
             </div>
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "4px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px" }}>
                   <span style={{
                     fontFamily: "'Cinzel', serif",
                     fontSize: "clamp(13px, 3.4vw, 16px)",
@@ -203,6 +203,11 @@ export const ContinueGame = ({
                     color: "rgba(240,220,170,0.92)",
                     letterSpacing: "0.08em",
                     textShadow: "0 1px 8px rgba(0,0,0,0.9)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    minWidth: 0,
+                    flex: 1,
                   }}>
                     {save.name}
                   </span>
@@ -212,6 +217,7 @@ export const ContinueGame = ({
                     fontFamily: "'Cinzel', serif",
                     letterSpacing: "0.06em",
                     textShadow: "0 1px 6px rgba(0,0,0,0.9)",
+                    flexShrink: 0,
                   }}>
                     Этаж {Math.min(Math.max(save.level, 1), 15)}
                   </span>
